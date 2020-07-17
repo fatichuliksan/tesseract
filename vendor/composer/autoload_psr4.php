@@ -7,4 +7,5 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'thiagoalessio\\TesseractOCR\\' => array($vendorDir . '/thiagoalessio/tesseract_ocr/src'),
+    'Spatie\\PdfToImage\\' => array($vendorDir . '/spatie/pdf-to-image/src'),
 );

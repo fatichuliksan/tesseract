@@ -11,12 +11,20 @@ class ComposerStaticInitd593919b901d4c25fc1c5d662c33d956
         array (
             'thiagoalessio\\TesseractOCR\\' => 27,
         ),
+        'S' => 
+        array (
+            'Spatie\\PdfToImage\\' => 18,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
         'thiagoalessio\\TesseractOCR\\' => 
         array (
             0 => __DIR__ . '/..' . '/thiagoalessio/tesseract_ocr/src',
+        ),
+        'Spatie\\PdfToImage\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/spatie/pdf-to-image/src',
         ),
     );
 

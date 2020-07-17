@@ -5,45 +5,108 @@ require('../config/Db.php');
 require '../vendor/autoload.php';
 
 use thiagoalessio\TesseractOCR\TesseractOCR;
+use Spatie\PdfToImage\Pdf;
+
 $layout = '../layout/';
 $url = base_url() . "document";
 
+$target_file = $_SERVER['DOCUMENT_ROOT'] .
+    "/tesseract/public/upload/pdf/Jenius_eReceipt_202006300001@DCB320693.pdf";
+$img1 = $_SERVER['DOCUMENT_ROOT'] .
+    "/tesseract/img/img9.jpg";
+$target_dir_image = $_SERVER['DOCUMENT_ROOT'] . "/tesseract/public/upload/image/";
+try {
+    $im = new imagick($target_file);
+    $im->setImageFormat("jpg");
+    header("Content-Type: image/jpeg");
+    echo $im;
+} catch (Exception $e) {
+    echo 'Caught exception: ', $e->getMessage(), "\n";
+}
+die();
+//$img->setResolution(300, 300);
+//$img->readImage($target_file);
+//$img->setImageFormat('jpeg');
+//$img->setImageCompression(imagick::COMPRESSION_JPEG);
+//$img->setImageCompressionQuality(100);
+// -flatten option, this is necessary for images with transparency, it will produce white background for transparent regions
+//$img = $img->flattenImages();
+//$img->readImage($img1);
+$thumbnail = $img->getImageBlob();
+header('Content-Type: image/' . $img->getImageFormat());
+echo $img;
+//ob_start();
+//$contents = ob_get_contents();
+//ob_end_clean();
+//echo "<img src='data:image/jpg;base64," . base64_encode($contents) . "' />";
+//    $imagick->writeImages($target_dir_image.'converted.png', false);
+//    var_dump($target_file);
+//    var_dump($imagick);
+
+die();
+
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 //    try {
-        $db = new Db();
-        $sql = "INSERT INTO documents (title, program_studi_id) VALUES ('" . $_POST["title"] . "', " . $_POST['program_studi_id'] . ")";
-        $connection = $db->getConnection();
-        $result = $connection->query($sql);
-        $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/tesseract/public/upload/";
+    $db = new Db();
+    $sql = "INSERT INTO documents (title, program_studi_id) VALUES ('" . $_POST["title"] . "', " . $_POST['program_studi_id'] . ")";
+    $connection = $db->getConnection();
+    $result = $connection->query($sql);
+    $target_dir = $_SERVER['DOCUMENT_ROOT'] . "/tesseract/public/upload/pdf/";
+    $target_dir_image = $_SERVER['DOCUMENT_ROOT'] . "/tesseract/public/upload/image/";
 
-        if ($result) {
-            $insertId = $connection->insert_id;
-            $files = $_FILES["files"];
-            foreach ($_FILES["files"]["name"] as $index => $name) {
-                $target_file = $target_dir . $name;
-                if (move_uploaded_file($_FILES["files"]["tmp_name"][$index], $target_file)) {
-                    $text =  (new TesseractOCR($target_file))
-                        ->tempDir('../temp')
-                        ->run();
+    if ($result) {
+        $insertId = $connection->insert_id;
+        $file = $_FILES["file"];
 
-                    $sql = "INSERT INTO file (document_id, dir, text) VALUES (" . $insertId . ",'" . $name . "', '".$text."')";
-                    $result = $connection->query($sql);
-                    echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
-                } else {
-                    echo "Sorry, there was an error uploading your file.";
-                }
+        if ($file) {
+            $name = date("YmdHis") . "_" . $file["name"];
+            $target_file = $target_dir . $name;
+            if (move_uploaded_file($file["tmp_name"], $target_file)) {
+                $sql = "UPDATE documents SET dir='" . $name . "' WHERE id=" . $insertId;
+                $connection = $db->getConnection();
+                $result = $connection->query($sql);
+                var_dump("test");
+//                $pdf = new Spatie\PdfToImage\Pdf($target_file);
+//                foreach (range(1, $pdf->getNumberOfPages()) as $pageNumber) {
+//                    $pdf->setPage($pageNumber)->saveImage($target_dir_image . 'page' . $pageNumber . 'jpg');
+//                }
+                var_dump($target_file);
+                die();
+                $imagick = new Imagick($target_file);
+                var_dump($imagick);
+//                var_dump($imagick->getNumberImages());
+                die();
+                echo "The file " . basename($_FILES["files"]["name"]) . " has been uploaded.";
+            } else {
+                echo "Sorry, there was an error uploading your file.";
             }
-            $_SESSION['notifikasi'] = array(
-                "type" => "success",
-                "message" => "Berhasil disimpan!"
-            );
-            redirect($url);
-        } else {
-            $_SESSION['notifikasi'] = array(
-                "type" => "error",
-                "message" => "Gagal disimpan!"
-            );
+
         }
+//            foreach ($_FILES["files"]["name"] as $index => $name) {
+//                $target_file = $target_dir . $name;
+//                if (move_uploaded_file($_FILES["files"]["tmp_name"][$index], $target_file)) {
+//                    $text =  (new TesseractOCR($target_file))
+//                        ->tempDir('../temp')
+//                        ->run();
+//
+//                    $sql = "INSERT INTO file (document_id, dir, text) VALUES (" . $insertId . ",'" . $name . "', '".$text."')";
+//                    $result = $connection->query($sql);
+//                    echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
+//                } else {
+//                    echo "Sorry, there was an error uploading your file.";
+//                }
+//            }
+        $_SESSION['notifikasi'] = array(
+            "type" => "success",
+            "message" => "Berhasil disimpan!"
+        );
+        redirect($url);
+    } else {
+        $_SESSION['notifikasi'] = array(
+            "type" => "error",
+            "message" => "Gagal disimpan!"
+        );
+    }
 //    } catch (Exception $e) {
 //        $_SESSION['notifikasi'] = array(
 //            "type" => "error",
@@ -114,10 +177,10 @@ $dataProdi = $db->getAll("select * from program_studi");
                                 </div>
                             </div>
                             <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Files (image:*.jpg,*.png)</label>
+                                <label class="col-sm-2 col-form-label">Files (*.pdf)</label>
                                 <div class="col-sm-10">
-                                    <input type="file" multiple class="form-control" name="files[]" placeholder="Files"
-                                           accept="image/png, image/jpeg">
+                                    <input type="file" multiple class="form-control" name="file" placeholder="Files"
+                                           accept="application/pdf">
                                 </div>
                             </div>
                             <div class="form-group row">
