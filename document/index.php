@@ -28,10 +28,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 $text = (new TesseractOCR($target_file))
                     ->tempDir('../temp')
                     ->run();
-
+                $text = str_replace(['"'], '', $text);
+//                $text = str_replace(['\'', '`', '’', '‘'], '', $text);
                 $text = str_replace("\n", ' ', $text);
-//                var_dump($text);
-//                die();
+
                 // cari judul dokumen
                 if (empty($title)) {
                     $res = explode(" ", $text);
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                                 $start = $index;
                             }
                         }
-                        if (is_null($finish)) {
+                        if (is_null($finish) and $start) {
                             if (strtolower($a) == "politeknik" && !is_null($start)) {
                                 $finish = $index;
                                 break;
@@ -51,13 +51,19 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                         }
                     }
 
-                    if ($finish and $title =="") {
+                    if ($finish and $title == "") {
                         $output = array_slice($res, $start + 1, $finish - $start - 1);
                         $title = implode(" ", $output);
+
                     }
                 }
+
                 // end cari judul dokumen
-                $sql = "INSERT INTO file (document_id, dir, text) VALUES (" . $insertId . ",'" . $name . "', '" . $text . "')";
+                $sql = 'INSERT INTO file (document_id, dir, text) VALUES (' . $insertId . ',"' . $name . '", "' . $text . '")';
+//                var_dump($text);
+//                var_dump("\n");
+//                var_dump($sql);
+//                die();
                 $result = $connection->query($sql);
                 echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
             } else {
