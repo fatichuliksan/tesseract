@@ -29,27 +29,34 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     ->tempDir('../temp')
                     ->run();
 
+                $text = str_replace("\n", ' ', $text);
+//                var_dump($text);
+//                die();
                 // cari judul dokumen
                 if (empty($title)) {
                     $res = explode(" ", $text);
                     $start = null;
                     $finish = null;
                     foreach ($res as $index => $a) {
-                        if (strtolower($a) == "tentang") {
-                            $start = $index;
+                        if (is_null($start)) {
+                            if (strtolower($a) == "tentang") {
+                                $start = $index;
+                            }
                         }
-
-                        if (strtolower($a) == "politeknik" && !is_null($start)) {
-                            $finish = $index;
-                            break;
+                        if (is_null($finish)) {
+                            if (strtolower($a) == "politeknik" && !is_null($start)) {
+                                $finish = $index;
+                                break;
+                            }
                         }
                     }
-                    if ($finish) {
+
+                    if ($finish and $title =="") {
                         $output = array_slice($res, $start + 1, $finish - $start - 1);
                         $title = implode(" ", $output);
                     }
                 }
-
+                // end cari judul dokumen
                 $sql = "INSERT INTO file (document_id, dir, text) VALUES (" . $insertId . ",'" . $name . "', '" . $text . "')";
                 $result = $connection->query($sql);
                 echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
@@ -77,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
 $db = new Db();
 $dataDocument = $db->getAll("select * from documents");
-
 
 ?>
 
@@ -138,6 +144,7 @@ $dataDocument = $db->getAll("select * from documents");
                                 <tr>
                                     <th width="5%">No.</th>
                                     <th>Title</th>
+                                    <th>Name List</th>
                                     <th width="20%"></th>
                                 </tr>
                                 </thead>
@@ -147,7 +154,25 @@ $dataDocument = $db->getAll("select * from documents");
                                         <td><?php echo $i + 1 ?></td>
                                         <td><?php echo $value['title'] ?></td>
                                         <td>
+                                            <ul><?php
+
+                                                $q = "select pegawai.nama from file_pegawai
+                                                      join file on file.id=file_pegawai.file_id
+                                                      join pegawai on pegawai.id=file_pegawai.pegawai_id
+                                                      where file.document_id={$value['id']}";
+                                                $dataPegawai = $db->getAll($q);
+                                                if ($dataPegawai) {
+                                                    foreach ($dataPegawai as $i) {
+                                                        echo "<li>{$i['nama']}</li>";
+                                                    }
+                                                }
+                                                ?>
+                                            </ul>
+                                        </td>
+                                        <td>
                                             <a href="<?php echo $url . "/detail.php?id=" . $value["id"] ?>">Detail</a>
+                                            <a href="<?php echo $url . "/get-name.php?id=" . $value["id"] ?>">Get
+                                                Name</a>
                                         </td>
                                     </tr>
                                 <?php } ?>
