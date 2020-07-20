@@ -29,6 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     ->tempDir('../temp')
                     ->run();
                 $text = str_replace(['"'], '', $text);
+                $text = str_replace(['|', '[' . ']'], ' ', $text);
 //                $text = str_replace(['\'', '`', '’', '‘'], '', $text);
                 $text = str_replace("\n", ' ', $text);
 
