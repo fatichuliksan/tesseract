@@ -30,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     ->run();
                 $text = str_replace(['"'], '', $text);
                 $text = str_replace(['|', '[' , ']'], ' ', $text);
+                $text = str_replace(', ', ',', $text);
+                $text = str_replace(',', ', ', $text);
 //                $text = str_replace(['\'', '`', '’', '‘'], '', $text);
                 $text = str_replace("\n", ' ', $text);
 
