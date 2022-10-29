@@ -61,7 +61,8 @@ $dataDetail = $db->getAll("select * from file where document_id=" . $_REQUEST['i
                                     <tr>
                                         <td><?php echo $i + 1 ?></td>
                                         <td>
-                                            <a target="_blank" href="<?php echo base_url() . "public/upload/" . $value['dir'] ?>"><?php echo $value['dir'] ?></a>
+                                            <a target="_blank"
+                                               href="<?php echo base_url() . $value['file_path'] ?>"><?php echo $value['file_name'] ?></a>
                                         </td>
                                         <td><?php echo $value['text'] ?></td>
                                     </tr>

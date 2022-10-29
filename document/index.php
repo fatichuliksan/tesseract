@@ -3,8 +3,8 @@ require('../config/helper.php');
 require('../config/Db.php');
 require '../vendor/autoload.php';
 
-
 use thiagoalessio\TesseractOCR\TesseractOCR;
+use Spatie\PdfToImage\Pdf;
 
 $layout = '../layout/';
 $url = base_url() . "document";
@@ -12,24 +12,61 @@ $url = base_url() . "document";
 $db = new Db();
 $connection = $db->getConnection();
 
-$target_dir = $_SERVER['DOCUMENT_ROOT'] . "/tesseract/public/upload/pdf/";
-$target_dir_image = $_SERVER['DOCUMENT_ROOT'] . "/tesseract/public/upload/image/";
+$root_dir = $_SERVER['DOCUMENT_ROOT'];
+$app_dir = "/tesseract";
 
+$target_dir_pdf = "/public/upload/pdf";
+$target_dir_image = "/public/upload/image";
+
+//$pdfFile = $target_dir_pdf . "20221029115112_SK TIM IMPLEMENTASI SAKIP 2019 - fix.PDF";
+//var_dump($pdfFile);
+//
+//
+//$pdf = new Spatie\PdfToImage\Pdf($pdfFile);
+//$pdf->setOutputFormat('jpg')
+//    ->saveImage($target_dir_image . "test.jpg");
+//var_dump($pdf->getNumberOfPages());
+//
+////phpinfo();
+//die();
 
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
-    $sql = "INSERT INTO documents (title, program_studi_id) VALUES ('-', 0)";
-    $result = $connection->query($sql);
-    if ($result) {
-        $insertId = $connection->insert_id;
-        $title = "";
-        foreach ($_FILES["files"]["name"] as $index => $name) {
-            $target_file = $target_dir_image . date('YmdHis') . '_' . $name;
-            if (move_uploaded_file($_FILES["files"]["tmp_name"][$index], $target_file)) {
-                $text = (new TesseractOCR($target_file))
+
+    $file_name_pdf = date('YmdHis') . '_' . $_FILES["file"]["name"];
+    $file_path_pdf = $target_dir_pdf . "/" . $file_name_pdf;
+    $target_file_pdf = $root_dir . $app_dir . $file_path_pdf;
+    // UPLOAD PDF
+    if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file_pdf)) {
+        // insert data
+        $sql = "INSERT INTO documents (title, program_studi_id, file_name, file_path) VALUES ('-', 0, '{$file_name_pdf}', '{$file_path_pdf}')";
+        $result = $connection->query($sql);
+
+        if ($result) {
+            $insertId = $connection->insert_id;
+            $title = "";
+            // CONVERT PDF TO JPG PER PAGE
+            $pdf = new Spatie\PdfToImage\Pdf($target_file_pdf);
+            $dir_name = str_replace(".pdf", "", $file_name_pdf);
+            $dir_name = str_replace(".PDF", "", $file_name_pdf);
+
+            $file_path_image = $target_dir_image . "/" . $dir_name;
+            $target_dir_image = $root_dir . $app_dir . $file_path_image;
+            mkdir($target_dir_image);
+            for ($i = 1; $i <= $pdf->getNumberOfPages(); $i++) {
+                $file_name_image = $file_name_pdf . " - page" . $i . ".jpg";
+                $pathToImage = $target_dir_image . "/" . $file_name_image;
+                $file_path_image2 = $file_path_image . "/" . $file_name_image;
+
+                $pdf->setPage($i)
+                    ->setOutputFormat('jpg')
+                    ->saveImage($pathToImage);
+
+                $text = (new TesseractOCR($pathToImage))
                     ->tempDir('../temp')
                     ->run();
+
                 $text = str_replace(['"'], '', $text);
-                $text = str_replace(['|', '[' , ']'], ' ', $text);
+                $text = str_replace(['|', '[', ']'], ' ', $text);
                 $text = str_replace(', ', ',', $text);
                 $text = str_replace(',', ', ', $text);
 //                $text = str_replace(['\'', '`', '’', '‘'], '', $text);
@@ -60,29 +97,34 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
                     }
                 }
-
                 // end cari judul dokumen
-                $sql = 'INSERT INTO file (document_id, dir, text) VALUES (' . $insertId . ',"' . $name . '", "' . $text . '")';
-//                var_dump($text);
-//                var_dump("\n");
-//                var_dump($sql);
-//                die();
+
+
+                $sql = "INSERT INTO file (document_id, file_path,file_name, text) VALUES ({$insertId},'{$file_path_image2}', '{$file_name_image}','{$text}')";
                 $result = $connection->query($sql);
-                echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
-            } else {
-                echo "Sorry, there was an error uploading your file.";
+//                echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
             }
+
+
+            // update title document
+            $sql = "UPDATE documents SET title='" . $title . "' WHERE id=" . $insertId;
+            $result = $connection->query($sql);
+
+            $_SESSION['notifikasi'] = array(
+                "type" => "success",
+                "message" => "Berhasil disimpan!"
+            );
+            redirect($url);
+        } else {
+            $_SESSION['notifikasi'] = array(
+                "type" => "error",
+                "message" => "Unggah file gagal!"
+            );
         }
 
-        // update
-        $sql = "UPDATE documents SET title='" . $title . "' WHERE id=" . $insertId;
-        $result = $connection->query($sql);
+        die();
 
-        $_SESSION['notifikasi'] = array(
-            "type" => "success",
-            "message" => "Berhasil disimpan!"
-        );
-        redirect($url);
+
     } else {
         $_SESSION['notifikasi'] = array(
             "type" => "error",
@@ -137,10 +179,10 @@ $dataDocument = $db->getAll("select * from documents");
                         <?php include($layout . 'alert.php') ?>
                         <form action="" method="POST" enctype="multipart/form-data">
                             <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Files (image)</label>
+                                <label class="col-sm-2 col-form-label">Files (pdf)</label>
                                 <div class="col-sm-8">
-                                    <input type="file" multiple class="form-control" name="files[]" placeholder="Files"
-                                           accept="image/jpeg, image/png">
+                                    <input type="file" class="form-control" name="file" placeholder="File"
+                                           accept="application/pdf"/>
                                 </div>
                                 <div class="col-sm-2">
                                     <button type="submit" class="btn btn-primary">Upload</button>
@@ -153,6 +195,7 @@ $dataDocument = $db->getAll("select * from documents");
                                 <tr>
                                     <th width="5%">No.</th>
                                     <th>Title</th>
+                                    <th>File</th>
                                     <th>Name List</th>
                                     <th width="20%"></th>
                                 </tr>
@@ -162,6 +205,10 @@ $dataDocument = $db->getAll("select * from documents");
                                     <tr>
                                         <td><?php echo $i + 1 ?></td>
                                         <td><?php echo $value['title'] ?></td>
+                                        <td>
+                                            <a target="_blank"
+                                               href="<?php echo base_url() . $value['file_path'] ?>"><?php echo $value['file_name'] ?></a>
+                                        </td>
                                         <td>
                                             <ul><?php
 
