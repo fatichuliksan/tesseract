@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.1
+-- version 5.2.0
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 14, 2020 at 05:00 PM
--- Server version: 10.4.11-MariaDB
--- PHP Version: 7.2.27
+-- Generation Time: Oct 29, 2022 at 09:03 AM
+-- Server version: 10.4.24-MariaDB
+-- PHP Version: 7.4.29
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -32,15 +31,17 @@ CREATE TABLE `documents` (
   `id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `status` varchar(255) DEFAULT NULL,
-  `program_studi_id` varchar(255) NOT NULL
+  `program_studi_id` varchar(255) NOT NULL,
+  `file_name` varchar(255) DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `documents`
 --
 
-INSERT INTO `documents` (`id`, `title`, `status`, `program_studi_id`) VALUES
-(51, 'Test21', NULL, '1');
+INSERT INTO `documents` (`id`, `title`, `status`, `program_studi_id`, `file_name`, `file_path`) VALUES
+(78, 'PEMBENTUKAN TIM IMPLEMENTASI  SISTEM AKUNTABILITAS KINERJA INSTANSI PEMERINTAH (SAKIP)  TAHUN 2019  DI', NULL, '0', '20221029140012_SK TIM IMPLEMENTASI SAKIP 2019 - fix.PDF', '/public/upload/pdf/20221029140012_SK TIM IMPLEMENTASI SAKIP 2019 - fix.PDF');
 
 -- --------------------------------------------------------
 
@@ -51,17 +52,10 @@ INSERT INTO `documents` (`id`, `title`, `status`, `program_studi_id`) VALUES
 CREATE TABLE `file` (
   `id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
-  `dir` varchar(255) NOT NULL,
-  `text` text DEFAULT NULL
+  `file_name` varchar(255) NOT NULL,
+  `text` text DEFAULT NULL,
+  `file_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `file`
---
-
-INSERT INTO `file` (`id`, `document_id`, `dir`, `text`) VALUES
-(10, 51, 'img23.jpg', 'LAMPIRAN .\nKEPUTUSAN DIREKTUR POLITEKNIK ELEKTRONIKA NEGERI SURABAYA _\n\nNOMOR\nTAN GGAL\n\n: 0205.01/PLI4/AK/2019\n: 27 FEBRUARI 2019\n\nTENTANG 2 BEBAN DOSEN MENGAJAR PROGRAM D3, SARJANA TERAPAN DAN S2\nSEMESTER GENAP 2018/2019\n\nPROGRAM STUD! TEKNIK ELEKTRO - 32\n\nNo Beban /Dozen Mata Kuliah Semester Jam/SKS Total\nJ an / SKS\n1 Dr. Ir. Endra Pitowarno, M.Eng. Advanced Sensor and Actuator S2 Elektro 2/2\nAdvanced Sensor and Actuator Project S2 Elektro 3/ 1\n5 / 3\n2 Dr. Ir. Era Purwanto, M.Eng. Standardization and Intellectual Property* S2 Elektro 1/1\n1/ 1\n3 Dr. I Gede Puja Astawa, ST, MT Advanced Communication* S2 Elektro 1/ 1\nAdvanced Communication Project* S2 Elektro 1.5/ 0.5\n2.5 / 1.5\n4 Novie Ayub W., S.T., M.T., Ph.D. Applied Power Electronics S2 Elektro 2 /2\nApplied Power Electronics Project S2 Elektro 3/ 1\n5 / 3\n5 Dr. Trl Budi Santoso, ST, MT Probability and Random Process* S2 Elelctro 1/ 1\nProbability and Random Process Project* S2 Elektro 1.5/0.5\nAdvanced Communication* S2 Elektro 1/ 1\nAdvanced Communication Project* S2 Elektro 1.5/0.5\n5/3\n6 Dr. Bambang Sumantri, ST, M.Sc Nonlienear Control System Engineering S2 Elektro 2/2\nNonlienear Control System Engineering Project S2 Elektro 3/ 1\n5/3\n7 Dr. lr. Prima Kristalina, MT Probability and Random Process* S2 Elektro 1/1\nProbability and Random Process Project* S2 Elektro 1,5/ 0,5\n2.5] 1.5\n8 Dr. Ir. Anang Tjahjono, MT Standardization and Intellectual Property* S2 Elekﬁo 1/ 1\n1/ 1\n9 Raden Sanggar Dewanto, ST, MT, Ph.D Dynamical System S2 Elektro 0,5 / 0,5\nDynamical System Project S2 Elektro 0,75/0,25\n1 ,25] 0,75\n10 Dr. Agus Indra Gunawan, ST, M.Sc Non—Destructive Testing and Evaluation S2 Elektro 2/ 2\nNon-Destructive Testing and Evaluation Project S2 Elektro 3/ 1\n5/ 3\nll Ir. Dadet Pramadihanto, M.Eng., Ph.D. Dynamical System S2 Elektro 1/ l\nDynamical System Project S2 Elektro 1,5/0,5\n2,5 / 1,5\n12 Ir. Wahjoe Tjatur Sesulihatien, MT., Ph.D. Dynamical System S2 Elektro 0,5 / 0,5\nDynamical System Project S2 Elektro 0,75 / 0,25\n1 ,25 / 0,75\nff\n\nDIREKTUR POLITEKNIK ELEKTRONIKA NEGERI SURABAYA,\n\n\\Dr. AL ARIEF, ST, MT\n% NIP. 19670128199031002'),
-(11, 51, 'img30.jpg', 'LAMPIRAN\nKEPUTUSAN DIREKTUR POLITEKNIK ELEKTRONIKA NEGERI SURABAYA\n\nNOMOR\n\n: 0205.01/PL14/AK/2019\n\nTANGGAL : 27 FEBRUARI 2019\nTENTANG 2 BEBAN DOSEN MENGAJAR PROGRAM D3, SARJANA TERAPAN DAN S2\nSEMESTER GENAP 2018/2019\n\nPROGRAM STUD] TEKNIK INFORMATIKA & KOMPUTER - 82\n\nTotal\nN B b\no e an I Dosen Mata Kuliah Semester Jam/SKS Jam/SKS\n1 Tri Harsono, SSi, M.Kom., Ph.D. Modelling and Simulation S2 TIK 2/ 2\n2 / 2\n2 Riyanto Sigit, ST., M.Kom., Ph.D. Medical Image Processing S2 TIK 2/ 2\nMedical Image Processing Project S2 TIK 3/ 1\n5/ 3\n3 Drs. Achmad Basuki, M.Kom., Ph.D. Modelling and Simulation Project S2 TIK 3/ 1\n3 j 1\n4 Sritrusta Sukaridhoto, ST., Ph.D. Internet of Things S2 T IK 2/2\nInternet of Things Project S2 TIK 3/ 1\n5/ 3\n5 Amang Sudarsono, ST., Ph.D. Network Management and Security S2 TIK 2 / 2\nNetwork Management and Security Project S2 TIK 3/1\n5/3\n6 M. Udin I-Iarun AL Rasyid, S.Kom., Ph.D. Web Design and Service Engineering S2 TIK 2/2\nWeb Design and Service Engineering Project S2 TIK 3/ 1\n5/3\n7 Tessy Badriyah, S.Kom., M.Kom., Ph.D. Advanced Data Science S2 TIK 2/ 2\nAdvanced Data Science Project S2 TIK 3/ 1\n5/ 3\n8 Aliridho Barakbah, S.Kom., Ph.D. Knowledge Discovery S2 TIK 2 / 2\nKnowledge Discovery Project S2 TIK 3/ 1\n5 / 3\n9 Dr. Bima Sena Bayu Dewantara, S, ST, MT Autonomous Intelligent System S2 TIK 2/ 2\nAutonomous Intelligent System Project S2 TIK 3/ 1\n5/ 3\n\nZ\n\nDIREKTUR POLITEKNIK ELEKTRONIKA NEGERI SURABAYA,\n\n  \n\nARIEF, ST, MT\n67012819903 1002');
 
 -- --------------------------------------------------------
 
@@ -74,6 +68,13 @@ CREATE TABLE `file_pegawai` (
   `file_id` int(11) NOT NULL,
   `pegawai_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `file_pegawai`
+--
+
+INSERT INTO `file_pegawai` (`id`, `file_id`, `pegawai_id`) VALUES
+(0, 30, 10);
 
 -- --------------------------------------------------------
 
@@ -494,13 +495,13 @@ ALTER TABLE `program_studi`
 -- AUTO_INCREMENT for table `documents`
 --
 ALTER TABLE `documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `file`
 --
 ALTER TABLE `file`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `pegawai`
