@@ -64,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                     ->saveImage($pathToImage);
 
                 $text = (new TesseractOCR($pathToImage))
-                    ->tempDir('../temp')
+//                    ->tempDir('../temp')
                     ->run();
 
                 $text = str_replace(['"'], '', $text);
