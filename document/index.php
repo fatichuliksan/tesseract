@@ -35,6 +35,10 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     $file_name_pdf = date('YmdHis') . '_' . $_FILES["file"]["name"];
     $file_path_pdf = $target_dir_pdf . "/" . $file_name_pdf;
     $target_file_pdf = $root_dir . $app_dir . $file_path_pdf;
+
+    $dir_name = preg_replace("/.pdf/", "", $file_name_pdf);
+    $dir_name = preg_replace("/.PDF/", "", $dir_name);
+
     // UPLOAD PDF
     if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file_pdf)) {
         // insert data
@@ -46,8 +50,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $title = "";
             // CONVERT PDF TO JPG PER PAGE
             $pdf = new Spatie\PdfToImage\Pdf($target_file_pdf);
-            $dir_name = str_replace(".pdf", "", $file_name_pdf);
-            $dir_name = str_replace(".PDF", "", $file_name_pdf);
 
             $file_path_image = $target_dir_image . "/" . $dir_name;
             $target_dir_image = $root_dir . $app_dir . $file_path_image;
