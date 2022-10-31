@@ -20,24 +20,20 @@ foreach ($dataPegawai as $pegawaiIndex => $i) {
     }
     $fileIds = implode(",", $fileIds);
     foreach ($dataFile as $index => $d) {
-
         if ($index > 1) {
             $nameExploded = explode(" ", str_replace(",", "", strtolower($i["nama"])));
 
             $string = strtolower($d["text"]);
 
+//            var_dump($i);
+//            var_dump($string);
+//            die();
+
             $temp = [];
             foreach ($nameExploded as $nameIndex => $name) {
                 // string to array
                 $words = str_word_count($string, 1);
-                if ($pegawaiIndex == 59) {
-//                var_dump($temp);
-//                    var_dump($nameExploded);
-//                    var_dump($name);
-//                    var_dump($words);
-//                    die();
-                }
-//
+
                 $wordIndexPositions = [];
                 foreach ($words as $wordIndex => $word) {
                     if ($word == strtolower($name)) {
@@ -50,6 +46,14 @@ foreach ($dataPegawai as $pegawaiIndex => $i) {
                 array_push($temp, $wordIndexPositions);
             }
 
+//            if ($i["id"] == 32) {
+////                var_dump($i, $nameExploded, $words);
+////                    var_dump($nameExploded);
+////                    var_dump($name);
+////                    var_dump($words);
+//                var_dump($sql);
+//                die();
+//            }
 
 
             // cek sort position
@@ -67,15 +71,12 @@ foreach ($dataPegawai as $pegawaiIndex => $i) {
                     foreach ($temp[0] as $t) {
                         $found = cek($temp, $t['index'] + 1, 1, $nameExploded);
                         if ($found) {
-
-
                             // insert data pegawai
                             $cek = $db->getAll("select * from file_pegawai where file_id in({$fileIds}) and pegawai_id={$i['id']}");
                             if (count($cek) == 0) {
                                 $sql = "INSERT INTO file_pegawai (file_id,pegawai_id) VALUES ({$d['id']},{$i['id']})";
                                 $result = $connection->query($sql);
                             }
-                            break;
                         }
                     }
                 }

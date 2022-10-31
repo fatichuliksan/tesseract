@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Oct 29, 2022 at 09:03 AM
+-- Generation Time: Oct 31, 2022 at 04:23 AM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 7.4.29
 
@@ -36,13 +36,6 @@ CREATE TABLE `documents` (
   `file_path` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
---
--- Dumping data for table `documents`
---
-
-INSERT INTO `documents` (`id`, `title`, `status`, `program_studi_id`, `file_name`, `file_path`) VALUES
-(78, 'PEMBENTUKAN TIM IMPLEMENTASI  SISTEM AKUNTABILITAS KINERJA INSTANSI PEMERINTAH (SAKIP)  TAHUN 2019  DI', NULL, '0', '20221029140012_SK TIM IMPLEMENTASI SAKIP 2019 - fix.PDF', '/public/upload/pdf/20221029140012_SK TIM IMPLEMENTASI SAKIP 2019 - fix.PDF');
-
 -- --------------------------------------------------------
 
 --
@@ -64,17 +57,10 @@ CREATE TABLE `file` (
 --
 
 CREATE TABLE `file_pegawai` (
-  `id` int(255) NOT NULL,
+  `id` int(11) NOT NULL,
   `file_id` int(11) NOT NULL,
   `pegawai_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
--- Dumping data for table `file_pegawai`
---
-
-INSERT INTO `file_pegawai` (`id`, `file_id`, `pegawai_id`) VALUES
-(0, 30, 10);
 
 -- --------------------------------------------------------
 
@@ -495,13 +481,19 @@ ALTER TABLE `program_studi`
 -- AUTO_INCREMENT for table `documents`
 --
 ALTER TABLE `documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `file`
 --
 ALTER TABLE `file`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+
+--
+-- AUTO_INCREMENT for table `file_pegawai`
+--
+ALTER TABLE `file_pegawai`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT for table `pegawai`

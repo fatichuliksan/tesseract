@@ -18,18 +18,6 @@ $app_dir = "/tesseract";
 $target_dir_pdf = "/public/upload/pdf";
 $target_dir_image = "/public/upload/image";
 
-//$pdfFile = $target_dir_pdf . "20221029115112_SK TIM IMPLEMENTASI SAKIP 2019 - fix.PDF";
-//var_dump($pdfFile);
-//
-//
-//$pdf = new Spatie\PdfToImage\Pdf($pdfFile);
-//$pdf->setOutputFormat('jpg')
-//    ->saveImage($target_dir_image . "test.jpg");
-//var_dump($pdf->getNumberOfPages());
-//
-////phpinfo();
-//die();
-
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
     $file_name_pdf = date('YmdHis') . '_' . $_FILES["file"]["name"];
@@ -50,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             $title = "";
             // CONVERT PDF TO JPG PER PAGE
             $pdf = new Spatie\PdfToImage\Pdf($target_file_pdf);
-
             $file_path_image = $target_dir_image . "/" . $dir_name;
             $target_dir_image = $root_dir . $app_dir . $file_path_image;
             mkdir($target_dir_image);
@@ -92,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                             }
                         }
                     }
-
+#
                     if ($finish and $title == "") {
                         $output = array_slice($res, $start + 1, $finish - $start - 1);
                         $title = implode(" ", $output);
