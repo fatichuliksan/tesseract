@@ -42,7 +42,7 @@ CREATE TABLE `documents` (
 -- Table structure for table `file`
 --
 
-CREATE TABLE `file` (
+CREATE TABLE `files` (
   `id` int(11) NOT NULL,
   `document_id` int(11) NOT NULL,
   `file_name` varchar(255) NOT NULL,

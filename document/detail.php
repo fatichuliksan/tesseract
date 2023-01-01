@@ -7,7 +7,7 @@ $layout = '../layout/';
 $url = base_url() . "document";
 
 $db = new Db();
-$dataDetail = $db->getAll("select * from file where document_id=" . $_REQUEST['id']);
+$dataDetail = $db->getAll("select * from files where document_id=" . $_REQUEST['id']);
 
 ?>
 
@@ -62,9 +62,9 @@ $dataDetail = $db->getAll("select * from file where document_id=" . $_REQUEST['i
                                         <td><?php echo $i + 1 ?></td>
                                         <td>
                                             <a target="_blank"
-                                               href="<?php echo base_url() . $value['file_path'] ?>"><?php echo $value['file_name'] ?></a>
+                                               href="<?php echo base_url() . $value['FILE_PATH'] ?>"><?php echo $value['FILE_NAME'] ?></a>
                                         </td>
-                                        <td><?php echo $value['text'] ?></td>
+                                        <td><?php echo $value['TEXT'] ?></td>
                                     </tr>
                                 <?php } ?>
                                 </tbody>

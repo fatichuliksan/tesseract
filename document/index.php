@@ -18,7 +18,9 @@ $app_dir = "/tesseract";
 $target_dir_pdf = "/public/upload/pdf";
 $target_dir_image = "/public/upload/image";
 
+
 if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    ini_set('max_execution_time', '0');
 
     $file_name_pdf = date('YmdHis') . '_' . $_FILES["file"]["name"];
     $file_path_pdf = $target_dir_pdf . "/" . $file_name_pdf;
@@ -31,10 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
     if (move_uploaded_file($_FILES["file"]["tmp_name"], $target_file_pdf)) {
         // insert data
         $sql = "INSERT INTO documents (title, program_studi_id, file_name, file_path) VALUES ('-', 0, '{$file_name_pdf}', '{$file_path_pdf}')";
-        $result = $connection->query($sql);
+//        $result = $connection->query($sql);
+//        $result = $db->insert($sql);
+
+        $result = false;
+        $insertID = 0;
+        $stid = oci_parse($db->getConnection(), $sql . " RETURNING ID INTO :insertID");
+        if ($stid) {
+            oci_bind_by_name($stid, ':insertID', $insertID, 18);
+            if (oci_execute($stid, OCI_COMMIT_ON_SUCCESS)) {
+                if (oci_commit($db->getConnection())) {
+                    $result = true;
+                }
+            }
+        }
 
         if ($result) {
-            $insertId = $connection->insert_id;
             $title = "";
             // CONVERT PDF TO JPG PER PAGE
             $pdf = new Spatie\PdfToImage\Pdf($target_file_pdf);
@@ -89,15 +103,20 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 // end cari judul dokumen
 
 
-                $sql = "INSERT INTO file (document_id, file_path,file_name, text) VALUES ({$insertId},'{$file_path_image2}', '{$file_name_image}','{$text}')";
-                $result = $connection->query($sql);
+                $text = str_replace(["'"], "''", $text);
+                $text = htmlentities($text);
+                $insertID = (int)$insertID;
+                $sql = "INSERT INTO files (document_id, file_path,file_name, text) VALUES ({$insertID},'{$file_path_image2}', '{$file_name_image}','{$text}')";
+                $result = $db->execute($sql);
 //                echo "The file " . basename($_FILES["files"]["name"][$index]) . " has been uploaded.";
             }
 
 
             // update title document
-            $sql = "UPDATE documents SET title='" . $title . "' WHERE id=" . $insertId;
-            $result = $connection->query($sql);
+
+            $insertID = (int)$insertID;
+            $sql = "UPDATE documents SET title='{ $title }' WHERE id={$insertID}";
+            $result = $db->execute($sql);
 
             $_SESSION['notifikasi'] = array(
                 "type" => "success",
@@ -123,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 }
 
 $db = new Db();
-$dataDocument = $db->getAll("select * from documents");
+$dataDocument = $db->getAll("select * from documents ORDER BY ID DESC");
 
 ?>
 
@@ -193,30 +212,31 @@ $dataDocument = $db->getAll("select * from documents");
                                 <?php foreach ($dataDocument as $i => $value) { ?>
                                     <tr>
                                         <td><?php echo $i + 1 ?></td>
-                                        <td><?php echo $value['title'] ?></td>
+                                        <td><?php echo $value['TITLE'] ?></td>
                                         <td>
                                             <a target="_blank"
-                                               href="<?php echo base_url() . $value['file_path'] ?>"><?php echo $value['file_name'] ?></a>
+                                               href="<?php echo base_url() . $value['FILE_PATH'] ?>"><?php echo $value['FILE_NAME'] ?></a>
                                         </td>
                                         <td>
                                             <ul><?php
 
-                                                $q = "select pegawai.nama from file_pegawai
-                                                      join file on file.id=file_pegawai.file_id
+                                                $id = (int)$value['ID'];
+                                                $q = "select pegawai.* from file_pegawai
+                                                      join files on files.id=file_pegawai.file_id
                                                       join pegawai on pegawai.id=file_pegawai.pegawai_id
-                                                      where file.document_id={$value['id']}";
+                                                      where files.document_id={$id}";
                                                 $dataPegawai = $db->getAll($q);
                                                 if ($dataPegawai) {
                                                     foreach ($dataPegawai as $i) {
-                                                        echo "<li>{$i['nama']}</li>";
+                                                        echo "<li>{$i['NAMA']}</li>";
                                                     }
                                                 }
                                                 ?>
                                             </ul>
                                         </td>
                                         <td>
-                                            <a href="<?php echo $url . "/detail.php?id=" . $value["id"] ?>">Detail</a>
-                                            <a href="<?php echo $url . "/get-name.php?id=" . $value["id"] ?>">Get
+                                            <a href="<?php echo $url . "/detail.php?id=" . $value["ID"] ?>">Detail</a>
+                                            <a href="<?php echo $url . "/get-name.php?id=" . $value["ID"] ?>">Get
                                                 Name</a>
                                         </td>
                                     </tr>
