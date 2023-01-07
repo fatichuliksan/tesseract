@@ -50,6 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 
         if ($result) {
             $title = "";
+            $doc_no = "";
             // CONVERT PDF TO JPG PER PAGE
             $pdf = new Spatie\PdfToImage\Pdf($target_file_pdf);
             $file_path_image = $target_dir_image . "/" . $dir_name;
@@ -75,9 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
 //                $text = str_replace(['\'', '`', '’', '‘'], '', $text);
                 $text = str_replace("\n", ' ', $text);
 
+                $res = explode(" ", $text);
                 // cari judul dokumen
                 if (empty($title)) {
-                    $res = explode(" ", $text);
                     $start = null;
                     $finish = null;
                     foreach ($res as $index => $a) {
@@ -102,6 +103,24 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
                 }
                 // end cari judul dokumen
 
+                // cari doc number
+                if (empty($doc_no)) {
+                    $firstText = "KEPUTUSAN DIREKTUR POLITEKNIK ELEKTRONIKA NEGERI SURABAYA";
+                    $firstTextPos = stripos($text, $firstText);
+                    $secondTextPos = stripos($text, "TENTANG");
+
+                    $searchText = substr($text, $firstTextPos + strlen($firstText), $secondTextPos - strlen($firstText));
+                    $searchTextExploded = explode(" ", $searchText);
+
+                    foreach ($searchTextExploded as $textExploded) {
+                        $searchTextExplodedBySlash = explode("/", $textExploded);
+                        if (count($searchTextExplodedBySlash) == 4) {
+                            $doc_no = $textExploded;
+                            break;
+                        }
+                    }
+                }
+                // end of cari doc number
 
                 $text = str_replace(["'"], "''", $text);
                 $text = htmlentities($text);
@@ -115,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] == "POST") {
             // update title document
 
             $insertID = (int)$insertID;
-            $sql = "UPDATE documents SET title='{ $title }' WHERE id={$insertID}";
+            $sql = "UPDATE documents SET title='{$title}', doc_no='{$doc_no}' WHERE id={$insertID}";
             $result = $db->execute($sql);
 
             $_SESSION['notifikasi'] = array(
@@ -174,75 +193,80 @@ $dataDocument = $db->getAll("select * from documents ORDER BY ID DESC");
                 </li>
             </ol>
         </div>
-        <div class="row">
-            <div class="container my-auto">
-                <div class="card mb-3">
-                    <div class="card-header">
-                        <i class="fas fa-table"></i>
-                        Document List
-                        <!--                        <a href="--><?php //echo $url . "/create.php" ?><!--"-->
-                        <!--                           class="btn btn-outline-primary btn-default float-right">Create</a>-->
-                    </div>
-                    <div class="card-body">
-                        <?php include($layout . 'alert.php') ?>
-                        <form action="" method="POST" enctype="multipart/form-data">
-                            <div class="form-group row">
-                                <label class="col-sm-2 col-form-label">Files (pdf)</label>
-                                <div class="col-sm-8">
-                                    <input type="file" class="form-control" name="file" placeholder="File"
-                                           accept="application/pdf"/>
-                                </div>
-                                <div class="col-sm-2">
-                                    <button type="submit" class="btn btn-primary">Upload</button>
-                                </div>
-                            </div>
-                        </form>
-                        <div class="table-responsive">
-                            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                                <thead>
-                                <tr>
-                                    <th width="5%">No.</th>
-                                    <th>Title</th>
-                                    <th>File</th>
-                                    <th>Name List</th>
-                                    <th width="20%"></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($dataDocument as $i => $value) { ?>
-                                    <tr>
-                                        <td><?php echo $i + 1 ?></td>
-                                        <td><?php echo $value['TITLE'] ?></td>
-                                        <td>
-                                            <a target="_blank"
-                                               href="<?php echo base_url() . $value['FILE_PATH'] ?>"><?php echo $value['FILE_NAME'] ?></a>
-                                        </td>
-                                        <td>
-                                            <ul><?php
+        <div class="container-fluid">
 
-                                                $id = (int)$value['ID'];
-                                                $q = "select pegawai.* from file_pegawai
+            <div class="row">
+                <div class=" my-auto">
+                    <div class="card">
+<!--                        <div class="card-header">-->
+<!--                            <i class="fas fa-table"></i>-->
+<!--                            Document List-->
+<!--                            <a href="--><?php //echo $url . "/create.php" ?><!--"-->
+<!--                                                       class="btn btn-outline-primary btn-default float-right">Create</a>-->
+<!--                        </div>-->
+                        <div class="card-body">
+                            <?php include($layout . 'alert.php') ?>
+                            <form action="" method="POST" enctype="multipart/form-data">
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Files (pdf)</label>
+                                    <div class="col-sm-8">
+                                        <input type="file" class="form-control" name="file" placeholder="File"
+                                               accept="application/pdf"/>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                    <thead>
+                                    <tr>
+                                        <th width="5%">No.</th>
+                                        <th>Doc No</th>
+                                        <th>Title</th>
+                                        <th>File</th>
+                                        <th>Name List</th>
+                                        <th width="20%"></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php foreach ($dataDocument as $i => $value) { ?>
+                                        <tr>
+                                            <td><?php echo $i + 1 ?></td>
+                                            <td><?php echo $value['DOC_NO'] ?></td>
+                                            <td><?php echo $value['TITLE'] ?></td>
+                                            <td>
+                                                <a target="_blank"
+                                                   href="<?php echo base_url() . $value['FILE_PATH'] ?>"><?php echo $value['FILE_NAME'] ?></a>
+                                            </td>
+                                            <td>
+                                                <ul><?php
+
+                                                    $id = (int)$value['ID'];
+                                                    $q = "select pegawai.* from file_pegawai
                                                       join files on files.id=file_pegawai.file_id
                                                       join pegawai on pegawai.id=file_pegawai.pegawai_id
                                                       where files.document_id={$id}";
-                                                $dataPegawai = $db->getAll($q);
-                                                if ($dataPegawai) {
-                                                    foreach ($dataPegawai as $i) {
-                                                        echo "<li>{$i['NAMA']}</li>";
+                                                    $dataPegawai = $db->getAll($q);
+                                                    if ($dataPegawai) {
+                                                        foreach ($dataPegawai as $i) {
+                                                            echo "<li>{$i['NAMA']}</li>";
+                                                        }
                                                     }
-                                                }
-                                                ?>
-                                            </ul>
-                                        </td>
-                                        <td>
-                                            <a href="<?php echo $url . "/detail.php?id=" . $value["ID"] ?>">Detail</a>
-                                            <a href="<?php echo $url . "/get-name.php?id=" . $value["ID"] ?>">Get
-                                                Name</a>
-                                        </td>
-                                    </tr>
-                                <?php } ?>
-                                </tbody>
-                            </table>
+                                                    ?>
+                                                </ul>
+                                            </td>
+                                            <td>
+                                                <a href="<?php echo $url . "/detail.php?id=" . $value["ID"] ?>">Detail</a>
+                                                <a href="<?php echo $url . "/get-name.php?id=" . $value["ID"] ?>">Get
+                                                    Name</a>
+                                            </td>
+                                        </tr>
+                                    <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
